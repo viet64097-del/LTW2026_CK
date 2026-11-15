@@ -1,11 +1,11 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
 
 export default function ProtectedRoute({ allowedRoles }) {
-  const savedUser = localStorage.getItem('current_user');
-  const user = savedUser ? JSON.parse(savedUser) : null;
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
-  if (!user) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
 

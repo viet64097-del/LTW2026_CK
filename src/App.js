@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/common/Navbar';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import { MOCK_RECIPES } from './utils/mockData';
+import LoginPage from './pages/guest/LoginPage';
+import RegisterPage from './pages/guest/RegisterPage';
 
 function HomePreview() {
   const approvedRecipes = MOCK_RECIPES.filter((r) => r.status === 'approved');
@@ -41,7 +43,8 @@ export default function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePreview />} />
-        <Route path="/login" element={<PagePlaceholder title="Trang Đăng nhập / Đăng ký" />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/search-ingredients" element={<PagePlaceholder title="Tìm món theo nguyên liệu đang có " />} />
         <Route path="/recipes/:id" element={<PagePlaceholder title="Chi tiết công thức & Chế độ nấu từng bước " />} />
 
