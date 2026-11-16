@@ -5,6 +5,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import { MOCK_RECIPES } from './utils/mockData';
 import LoginPage from './pages/guest/LoginPage';
 import RegisterPage from './pages/guest/RegisterPage';
+import HomePage from './pages/guest/HomePage';
 
 function HomePreview() {
   const approvedRecipes = MOCK_RECIPES.filter((r) => r.status === 'approved');
@@ -42,7 +43,7 @@ export default function App() {
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/" element={<HomePreview />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/search-ingredients" element={<PagePlaceholder title="Tìm món theo nguyên liệu đang có " />} />
