@@ -59,6 +59,15 @@ export default function App() {
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
           <Route path="/admin/approve" element={<PagePlaceholder title="Admin Dashboard: Duyệt bài & Quản lý hệ thống" />} />
         </Route>
+        <Route
+          path="*"
+          element={
+            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <h2>404 - Không tìm thấy trang</h2>
+              <p>Đường dẫn bạn truy cập không tồn tại.</p>
+            </div>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

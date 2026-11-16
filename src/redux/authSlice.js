@@ -18,15 +18,11 @@ const authSlice = createSlice({
       state.user = user;
       state.token = token;
       state.isAuthenticated = true;
-      localStorage.setItem('current_user', JSON.stringify(user));
-      localStorage.setItem('access_token', token);
     },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('current_user');
-      localStorage.removeItem('access_token');
     },
     toggleFavoriteRecipe: (state, action) => {
       if (!state.user) return;
@@ -37,9 +33,8 @@ const authSlice = createSlice({
       if (exists) {
         state.user.favorites = favorites.filter((id) => id !== recipeId);
       } else {
-        state.user.favorites = [...favorites, recipeId];
+        state.user.favorites.push(recipeId); // Immer tự xử lý bất biến (Immutability)
       }
-      localStorage.setItem('current_user', JSON.stringify(state.user));
     }
   }
 });
