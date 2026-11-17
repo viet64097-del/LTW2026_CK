@@ -68,3 +68,16 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## Cấu hình Database & Dữ liệu mẫu (MongoDB)
+
+### 1. Cấu trúc thư mục Backend (`server/`)
+- `server/config/db.js`: Cấu hình kết nối tới MongoDB.
+- `server/models/`: Định nghĩa 5 Mongoose Schema (`User`, `Category`, `Recipe`, `Review`, `MealPlan`) kèm các ràng buộc và Unique Index.
+- `server/seed.js`: Script khởi tạo dữ liệu mẫu cho hệ thống.
+
+### 2. Hướng dẫn thiết lập môi trường
+1. Di chuyển vào thư mục `server` và cài đặt thư viện:
+   ```bash
+   cd server
+   npm install

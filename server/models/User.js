@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Vui lòng nhập email'],
         unique: true,
         lowercase: true,
+        trim: true,
     },
     passwordHash: {
         type: String,
@@ -25,7 +26,8 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Recipe',
     }],
-    timestamps: { createdAt: true, updatedAt: false }
-});
 
-module.exxports = mongoose.model('User', userSchema);
+}, { timestamps: { createdAt: true, updatedAt: false } }
+);
+
+module.exports = mongoose.model('User', userSchema);

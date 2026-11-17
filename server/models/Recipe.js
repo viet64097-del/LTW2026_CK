@@ -53,12 +53,19 @@ const recipeSchema = new mongoose.Schema({
         enum: ['Dễ', 'Trung bình', 'Khó'],
         default: 'Dễ'
     },
-    ingredient: {
-        type: [ingredientSchema],
+    ingredients: {
+        type: [{
+            name: { type: String, required: true, trim: true },
+            amount: { type: Number, required: true },
+            unit: { type: String, required: true, trim: true }
+        }],
         validate: [val => val.length > 0, 'Món ăn phải có ít nhất một nguyên liệu'],
     },
     steps: {
-        type: [stepSchema],
+        type: [{
+            stepNumber: { type: Number, required: true },
+            instruction: { type: String, required: true, trim: true },
+        }],
         validate: [val => val.length > 0, 'Món ăn phải có ít nhất một bước thực hiện']
     },
     status: {
@@ -77,7 +84,7 @@ const recipeSchema = new mongoose.Schema({
         default: 0,
         min: 0,
     },
-    timestamps: { createdAt: true, updatedAt: false }
-});
+}, { timestamps: { createdAt: true, updatedAt: false } }
+);
 
 module.exports = mongoose.model('Recipe', recipeSchema);
