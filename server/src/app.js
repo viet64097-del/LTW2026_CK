@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-
+const path = require("path");
 const app = express();
 
 app.use(cors());
@@ -14,5 +14,16 @@ app.get("/api/health",(req,res) => {
 });
 
 app.use("/api/meal-plans", require("./routes/mealPlans.routes"));
+
+app.use("/api/admin", require("./routes/admin.routes"));
+
+
+app.use("/api/categories", require("./routes/categories.routes"));
+
+app.use("/api/favorites", require("./routes/favorites.routes"));
+
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+app.use(require("./middleware/errorHandler"));
 
 module.exports = app;

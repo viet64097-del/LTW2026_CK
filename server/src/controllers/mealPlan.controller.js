@@ -10,7 +10,9 @@ function parseDateOnly(value) {
 
   const date = new Date(`${value}T00:00:00.000Z`);
 
-  if (date.toISOString().slice(0, 10) !== value) {
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.toISOString().slice(0, 10) !== value) {
     return null;
   }
 
@@ -83,6 +85,66 @@ exports.addMealPlan = async (req, res, next) => {
       });
     }
 
+    next(error);
+  }
+};
+
+exports.getShoppingList = async (req, res, next) => {
+  try {
+    const startDate = parseDateOnly(req.query.weekStart);
+
+    if (!startDate) {
+      return res.status(400).json({
+        message: "weekStart phải có định dạng YYYY-MM-DD",
+      });
+    }
+
+    const endDate = new Date(startDate);
+    endDate.setUTCDate(endDate.getUTCDate() + 7);
+
+    const mealPlans = await MealPlan.find({
+      userId: req.user.id,
+      date: { $gte: startDate, $lt: endDate },
+    }).populate("recipeId", "title ingredient");
+
+    const grouped = mealPlans.reduce((allIngredients, mealPlan) => {
+      const ingredients = mealPlan.recipeId?.ingredient || [];
+
+      return ingredients.reduce((groups, item) => {
+        const name = item.name.trim();
+        const unit = item.unit.trim();
+        const key = `${name.toLowerCase()}\u0000${unit.toLowerCase()}`;
+
+        if (!groups[key]) {
+          groups[key] = { name, unit, amount: 0 };
+        }
+
+        groups[key].amount += Number(item.amount);
+        return groups;
+      }, allIngredients);
+    }, {});
+
+    res.json({ data: Object.values(grouped) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteMealPlan = async (req, res, next) => {
+  try {
+    const mealPlan = await MealPlan.findOneAndDelete({
+      _id: req.params.id,
+      userId: req.user.id,
+    });
+
+    if (!mealPlan) {
+      return res.status(404).json({
+        message: "Không tìm thấy món trong thực đơn của bạn",
+      });
+    }
+
+    res.json({ message: "Đã xóa món khỏi thực đơn" });
+  } catch (error) {
     next(error);
   }
 };

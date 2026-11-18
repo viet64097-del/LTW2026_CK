@@ -1,4 +1,6 @@
 const express = require("express");
+const upload = require("../middleware/upload");
+const { requireAuth } = require("../middleware/auth");
 
 const {
   listRecipes,
@@ -7,6 +9,7 @@ const {
   updateRecipe,
   deleteRecipe,
   searchByIngredients,
+  uploadRecipeImage,
 } = require("../controllers/recipe.controller");
 
 const {
@@ -14,13 +17,12 @@ const {
   createReview,
 } = require("../controllers/review.controller");
 
-const { requireAuth } = require("../middleware/auth");
-
 const router = express.Router();
 
 router.get("/search/ingredients", searchByIngredients);
-router.get("/", listRecipes);
+router.post("/upload-image", requireAuth, upload.single("image"), uploadRecipeImage);
 
+router.get("/", listRecipes);
 router.post("/", requireAuth, createRecipe);
 
 router.get("/:id/reviews", listReviews);

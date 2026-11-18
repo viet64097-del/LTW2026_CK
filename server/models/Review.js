@@ -23,7 +23,7 @@ const reviewSchema = new mongoose.Schema(
             trim: true,
             default: '',
         },
-        isHiddent: {
+        isHidden: {
             type: Boolean,
             default: false //Dùng ẩn bình luận
         },

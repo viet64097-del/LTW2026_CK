@@ -120,7 +120,7 @@ exports.createRecipe = async (req,res,next) => {
       categoryId,
       title: title.trim(),
       description: description.trim(),
-      imagaUrl,
+      imageUrl,
       cookingTime:Number(cookingTime),
       servings:Number(servings),
       difficulty,
@@ -132,7 +132,7 @@ exports.createRecipe = async (req,res,next) => {
       message: "Đã gửi công thức,đang chờ duyệt",
       data:recipe,
     });
-  }catch(eror) {
+  }catch(error) {
     next(error);
   }
 };
@@ -156,7 +156,7 @@ exports.updateRecipe = async (req,res,next) => {
       "imageUrl",
       "cookingTime",
       "servings",
-      "dificulty",
+      "difficulty",
       "ingredient",
       "steps",
     ];
@@ -370,4 +370,15 @@ exports.searchByIngredients = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+exports.uploadRecipeImage = (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "Bạn chưa chọn ảnh" });
+  }
+
+  res.status(201).json({
+    message: "Upload ảnh thành công",
+    imageUrl: `/uploads/${req.file.filename}`,
+  });
 };
