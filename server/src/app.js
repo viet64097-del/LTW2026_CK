@@ -13,4 +13,6 @@ app.get("/api/health",(req,res) => {
     res.json({message: "API đang hoạt động"});
 });
 
+app.use("/api/meal-plans", require("./routes/mealPlans.routes"));
+
 module.exports = app;
