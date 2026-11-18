@@ -5,31 +5,31 @@ const reviewSchema = new mongoose.Schema(
         recipeId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Recipe',
-            required: true
+            required: true,
         },
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: true
+            required: true,
         },
         rating: {
             type: Number,
             required: true,
             min: 1,
-            max: 5
+            max: 5,
         },
         comment: {
             type: String,
             trim: true,
-            default: ''
+            default: '',
         },
-        isHidden: {
+        isHiddent: {
             type: Boolean,
-            default: false
-        }
+            default: false //Dùng ẩn bình luận
+        },
     },
     {
-        timestamps: { createdAt: true, updatedAt: false }
+    timestamps: { createdAt: true, updatedAt: false }
     }
 );
 
