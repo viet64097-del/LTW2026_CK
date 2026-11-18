@@ -1,9 +1,9 @@
-const { default: mongoose } = require("mongoose");
-const moongoose = require("mongoose");
+const mongoose = require("mongoose");
 
 async function connectDB() {
     try {
-        await mongoose.connect(process.env.MONGODB_URI);
+        const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+        await mongoose.connect(mongoUri);
         console.log("Đã kết nối MongoDB");
     } catch (error) {
         console.error("Kết nối MongoDB thất bại: ", error.message);
