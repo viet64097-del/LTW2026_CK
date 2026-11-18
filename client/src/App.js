@@ -7,6 +7,7 @@ import LoginPage from './pages/guest/LoginPage';
 import RegisterPage from './pages/guest/RegisterPage';
 import HomePage from './pages/guest/HomePage';
 import SearchByIngredientPage from './pages/guest/SearchByIngredientPage';
+import RecipeDetailPage from './pages/guest/RecipeDetailPage';
 
 function HomePreview() {
   const approvedRecipes = MOCK_RECIPES.filter((r) => r.status === 'approved');
@@ -48,7 +49,7 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/search-ingredients" element={<SearchByIngredientPage />} />
-        <Route path="/recipes/:id" element={<PagePlaceholder title="Chi tiết công thức & Chế độ nấu từng bước " />} />
+        <Route path="/recipes/:id" element={<RecipeDetailPage />} />
 
         <Route element={<ProtectedRoute allowedRoles={['member', 'admin']} />}>
           <Route path="/recipes/create" element={<PagePlaceholder title="Đăng công thức mới - Form động" />} />
