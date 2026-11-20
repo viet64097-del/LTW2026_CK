@@ -40,7 +40,7 @@ exports.register = async (req,res,next) => {
             passwordHash
         });
 
-        return res.status(201).json =({
+        return res.status(201).json ({
             message: "Đăng ký thành công",
             token: createToken(user),
             user: {
