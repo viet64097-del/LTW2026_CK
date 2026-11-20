@@ -3,6 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleFavoriteRecipe } from '../../redux/authSlice';
 import { MOCK_RECIPES } from '../../utils/mockData';
+import CookingModeModal from '../../components/recipe/CookingModeModal';
+import ReviewSection from '../../components/recipe/ReviewSection';
 
 export default function RecipeDetailPage() {
   const { id } = useParams();
@@ -14,6 +16,7 @@ export default function RecipeDetailPage() {
 
   const [currentServings, setCurrentServings] = useState(recipe ? recipe.servings : 2);
   const [checkedIngredients, setCheckedIngredients] = useState([]);
+  const [showCookingMode, setShowCookingMode] = useState(false);  
 
   useEffect(() => {
     if (recipe) {
@@ -111,6 +114,22 @@ export default function RecipeDetailPage() {
           </div>
 
           <div style={styles.actionRow}>
+            <button
+              type="button"
+              onClick={() => setShowCookingMode(true)}
+              style={{
+                padding: '11px 20px',
+                borderRadius: '10px',
+                border: 'none',
+                backgroundColor: '#ea580c',
+                color: '#ffffff',
+                fontWeight: 600,
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              🔥 Bắt đầu nấu (Có hẹn giờ)
+            </button>
             <button
               type="button"
               onClick={handleToggleFavorite}
@@ -231,6 +250,13 @@ export default function RecipeDetailPage() {
           </div>
         </div>
       </div>
+      <ReviewSection recipeId={recipe._id} />
+      {showCookingMode && (
+        <CookingModeModal
+          recipe={recipe}
+          onClose={() => setShowCookingMode(false)}
+        />
+      )}
     </div>
   );
 }

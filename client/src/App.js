@@ -8,6 +8,8 @@ import RegisterPage from './pages/guest/RegisterPage';
 import HomePage from './pages/guest/HomePage';
 import SearchByIngredientPage from './pages/guest/SearchByIngredientPage';
 import RecipeDetailPage from './pages/guest/RecipeDetailPage';
+import RecipeFormPage from './pages/member/RecipeFormPage';
+import MyRecipesPage from './pages/member/MyRecipesPage';
 
 function HomePreview() {
   const approvedRecipes = MOCK_RECIPES.filter((r) => r.status === 'approved');
@@ -52,9 +54,10 @@ export default function App() {
         <Route path="/recipes/:id" element={<RecipeDetailPage />} />
 
         <Route element={<ProtectedRoute allowedRoles={['member', 'admin']} />}>
-          <Route path="/recipes/create" element={<PagePlaceholder title="Đăng công thức mới - Form động" />} />
+          <Route path="/recipes/create" element={<RecipeFormPage />} />
+          <Route path="/recipes/edit/:id" element={<RecipeFormPage />} />
           <Route path="/recipes/edit/:id" element={<PagePlaceholder title="Chỉnh sửa công thức" />} />
-          <Route path="/my-recipes" element={<PagePlaceholder title="Công thức của tôi & Món yêu thích" />} />
+          <Route path="/my-recipes" element={<MyRecipesPage />} />
           <Route path="/meal-planner" element={<PagePlaceholder title="Thực đơn tuần 7x3 & Danh sách đi chợ" />} />
         </Route>
 
