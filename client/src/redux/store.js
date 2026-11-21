@@ -1,23 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
+import mealPlanReducer from './mealPlanSlice';
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer
+    auth: authReducer,
+    mealPlan: mealPlanReducer
   }
 });
 
 store.subscribe(() => {
-  const { user, token } = store.getState().auth;
-  try {
-    if (user && token) {
-      localStorage.setItem('current_user', JSON.stringify(user));
-      localStorage.setItem('access_token', token);
-    } else {
-      localStorage.removeItem('current_user');
-      localStorage.removeItem('access_token');
-    }
-  } catch {
-    // Keep the current in-memory session when browser storage is unavailable.
-  }
+  const state = store.getState();
+  localStorage.setItem('auth', JSON.stringify(state.auth));
+  localStorage.setItem('mealPlan', JSON.stringify(state.mealPlan.plan));
 });
