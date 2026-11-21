@@ -11,3 +11,46 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.print-only {
+  display: none;
+}
+
+@media print {
+  nav,
+  header,
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #ea580c;
+    padding-bottom: 10px;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  table {
+    width: 100% !important;
+    min-width: unset !important;
+    font-size: 12px !important;
+  }
+
+  tr,
+  .print-keep-together {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

@@ -9,6 +9,9 @@ import SearchByIngredientPage from './pages/guest/SearchByIngredientPage';
 import RecipeDetailPage from './pages/guest/RecipeDetailPage';
 import RecipeFormPage from './pages/member/RecipeFormPage';
 import MyRecipesPage from './pages/member/MyRecipesPage';
+import MealPlannerPage from './pages/member/MealPlannerPage';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import NotFoundPage from './pages/guest/NotFoundPage';
 
 const PagePlaceholder = ({ title }) => (
   <div style={{ maxWidth: '1100px', margin: '28px auto', padding: '20px' }}>
@@ -31,11 +34,11 @@ export default function App() {
           <Route path="/recipes/create" element={<RecipeFormPage />} />
           <Route path="/recipes/edit/:id" element={<RecipeFormPage />} />
           <Route path="/my-recipes" element={<MyRecipesPage />} />
-          <Route path="/meal-planner" element={<PagePlaceholder title="Thực đơn tuần 7x3 & Danh sách đi chợ" />} />
+          <Route path="/meal-planner" element={<MealPlannerPage />} />
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-          <Route path="/admin/approve" element={<PagePlaceholder title="Admin Dashboard: Duyệt bài & Quản lý hệ thống" />} />
+          <Route path="/admin/approve" element={<AdminDashboardPage />} />
         </Route>
         <Route
           path="*"
@@ -46,6 +49,7 @@ export default function App() {
             </div>
           }
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );
