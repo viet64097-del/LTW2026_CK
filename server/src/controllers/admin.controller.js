@@ -1,5 +1,6 @@
 const Recipe = require("../../models/Recipe");
 const Review = require("../../models/Review");
+const { refreshRecipeRatingStats } = require("../services/recipeRatingStats");
 
 exports.listPendingRecipes = async (req, res, next) => {
   try {
@@ -35,6 +36,33 @@ exports.updateRecipeStatus = async (req, res, next) => {
     }
 
     res.json({ message: "Đã cập nhật trạng thái", data: recipe });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateReviewVisibility = async (req, res, next) => {
+  try {
+    const { isHidden } = req.body || {};
+    if (typeof isHidden !== "boolean") {
+      return res.status(400).json({ message: "isHidden phải là true hoặc false" });
+    }
+
+    const review = await Review.findByIdAndUpdate(
+      req.params.id,
+      { $set: { isHidden } },
+      { new: true }
+    );
+    if (!review) {
+      return res.status(404).json({ message: "Không tìm thấy đánh giá" });
+    }
+
+    const stats = await refreshRecipeRatingStats(review.recipeId);
+    return res.json({
+      message: isHidden ? "Đã ẩn đánh giá" : "Đã hiện lại đánh giá",
+      data: review,
+      ...stats,
+    });
   } catch (error) {
     next(error);
   }
