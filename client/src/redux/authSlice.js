@@ -1,21 +1,27 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const savedUser = localStorage.getItem('current_user');
-const savedToken = localStorage.getItem('access_token');
+function restoreSession() {
+  try {
+    const token = localStorage.getItem('access_token');
+    const user = JSON.parse(localStorage.getItem('current_user'));
 
-const initialState = {
-  user: savedUser ? JSON.parse(savedUser) : null,
-  token: savedToken || null,
-  isAuthenticated: !!savedUser
-};
+    if (user?._id && token && !token.startsWith('mock_jwt_token_')) {
+      return { user, token, isAuthenticated: true };
+    }
+  } catch {
+    // An unreadable saved session can be replaced by signing in again.
+  }
+
+  return { user: null, token: null, isAuthenticated: false };
+}
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState,
+  initialState: restoreSession(),
   reducers: {
     loginSuccess: (state, action) => {
       const { user, token } = action.payload;
-      state.user = user;
+      state.user = { ...user, _id: user.id ?? user._id, favorites: user.favorites ?? [] };
       state.token = token;
       state.isAuthenticated = true;
     },
@@ -33,7 +39,7 @@ const authSlice = createSlice({
       if (exists) {
         state.user.favorites = favorites.filter((id) => id !== recipeId);
       } else {
-        state.user.favorites.push(recipeId); // Immer tự xử lý bất biến (Immutability)
+        state.user.favorites = [...favorites, recipeId];
       }
     }
   }

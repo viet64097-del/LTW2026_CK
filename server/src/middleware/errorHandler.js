@@ -15,6 +15,10 @@ module.exports = (err, req, res, next) => {
     return res.status(400).json({ message: err.message });
   }
 
+  if (err.type === "entity.parse.failed") {
+    return res.status(400).json({ message: "Dữ liệu JSON không hợp lệ" });
+  }
+
   if (err.name === "ValidationError" || err.name === "CastError") {
     return res.status(400).json({ message: "Dữ liệu không hợp lệ" });
   }

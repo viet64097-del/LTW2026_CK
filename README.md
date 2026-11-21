@@ -1,83 +1,55 @@
-# Getting Started with Create React App
+# Sổ Tay Nấu Ăn
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Ứng dụng React để khám phá công thức và tìm món theo nguyên liệu, với máy chủ Express và cơ sở dữ liệu MongoDB.
 
-## Available Scripts
+## Chạy dự án
 
-In the project directory, you can run:
+Cần Node.js 20.19 trở lên và một MongoDB đang chạy.
 
-### `npm start`
+1. Từ thư mục gốc, cài đặt và cấu hình máy chủ.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-
-## Cấu hình Database & Dữ liệu mẫu (MongoDB)
-
-### 1. Cấu trúc thư mục Backend (`server/`)
-- `server/config/db.js`: Cấu hình kết nối tới MongoDB.
-- `server/models/`: Định nghĩa 5 Mongoose Schema (`User`, `Category`, `Recipe`, `Review`, `MealPlan`) kèm các ràng buộc và Unique Index.
-- `server/seed.js`: Script khởi tạo dữ liệu mẫu cho hệ thống.
-
-### 2. Hướng dẫn thiết lập môi trường
-1. Di chuyển vào thư mục `server` và cài đặt thư viện:
    ```bash
    cd server
    npm install
+   cp -n .env.example .env
+   node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+   ```
+
+   Điền giá trị vừa tạo vào `JWT_SECRET` trong `server/.env`. Dùng `MONGODB_URI` để chọn cơ sở dữ liệu. Tệp mẫu trỏ tới MongoDB cục bộ.
+
+2. Khởi động máy chủ từ thư mục `server`.
+
+   ```bash
+   npm start
+   ```
+
+3. Mở một terminal khác tại thư mục gốc và khởi động giao diện.
+
+   ```bash
+   cd client
+   npm ci
+   npm start
+   ```
+
+   Giao diện chạy mặc định tại [localhost:3000](http://localhost:3000). Nếu API chạy ở địa chỉ khác, đặt `REACT_APP_API_URL` trong `client/.env.local`, ví dụ `http://localhost:5001/api`, rồi khởi động lại giao diện.
+
+## Dữ liệu mẫu
+
+Đặt `MONGODB_URI` trong `server/.env` tới một cơ sở dữ liệu demo trống, ví dụ `mongodb://127.0.0.1:27017/recipe_app_demo`. Từ thư mục `server`, chạy `node seed.js` để tạo tài khoản, loại món, công thức, đánh giá và thực đơn mẫu. Nếu muốn bắt đầu lại từ bộ dữ liệu ban đầu, dùng một tên cơ sở dữ liệu demo mới.
+
+| Vai trò | Cách truy cập | Mật khẩu demo |
+| --- | --- | --- |
+| Khách | Mở trang chủ | — |
+| Thành viên | `member1@gmail.com` hoặc `member2@gmail.com` | `123456` |
+| Admin | `admin@gmail.com` | `123456` |
+
+## Kiểm tra
+
+Chạy từ thư mục `client`.
+
+```bash
+npm test -- --watchAll=false --runInBand
+CI=true npm run build
+```
+
+Đăng nhập và đăng ký sử dụng API. Các màn hình công thức, yêu thích và đánh giá trên giao diện vẫn dùng dữ liệu mẫu. Giao diện thực đơn tuần và quản trị hiện mới có trang khung.
