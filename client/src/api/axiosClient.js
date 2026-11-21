@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { logout } from '../redux/authSlice';
+import { store } from '../redux/store';
 
 const axiosClient = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
@@ -9,8 +11,8 @@ const axiosClient = axios.create({
 
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
+    const { token } = store.getState().auth;
+    if (token && !config.skipAuth) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -21,10 +23,9 @@ axiosClient.interceptors.request.use(
 axiosClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('current_user');
-      window.location.href = '/login';
+    const { token } = store.getState().auth;
+    if (error.response?.status === 401 && token && error.config?.headers?.Authorization === `Bearer ${token}`) {
+      store.dispatch(logout());
     }
     return Promise.reject(error);
   }

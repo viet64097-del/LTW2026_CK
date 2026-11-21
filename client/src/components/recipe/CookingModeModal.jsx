@@ -11,25 +11,22 @@ export default function CookingModeModal({ recipe, onClose }) {
   const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
-    setSecondsLeft((steps[currentIndex]?.timerMinutes || 0) * 60);
+    setSecondsLeft(initialSeconds);
     setIsRunning(false);
-  }, [currentIndex, steps]);
+  }, [currentIndex, initialSeconds]);
 
   useEffect(() => {
     if (!isRunning || secondsLeft <= 0) return;
 
-    const timer = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          setIsRunning(false);
-          alert(`⏰ Hết giờ cho Bước ${currentIndex + 1}!`);
-          return 0;
-        }
-        return prev - 1;
-      });
+    const timer = setTimeout(() => {
+      setSecondsLeft(secondsLeft - 1);
+      if (secondsLeft === 1) {
+        setIsRunning(false);
+        alert(`⏰ Hết giờ cho Bước ${currentIndex + 1}!`);
+      }
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => clearTimeout(timer);
   }, [isRunning, secondsLeft, currentIndex]);
 
   const formatTime = (totalSecs) => {

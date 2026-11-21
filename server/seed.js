@@ -1,7 +1,6 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const connectDB = require('./config/db');
+const connectDB = require('./src/config/db');
 
 // Import 5 models
 const User = require('./models/User');
@@ -12,18 +11,13 @@ const MealPlan = require('./models/MealPlan');
 
 const seedData = async () => {
     try {
-        // 1. Kết nối tới Cooker_DB
         await connectDB();
 
-        // 2. Xóa toàn bộ dữ liệu cũ trước khi nạp mới
-        await Promise.all([
-            User.deleteMany({}),
-            Category.deleteMany({}),
-            Recipe.deleteMany({}),
-            Review.deleteMany({}),
-            MealPlan.deleteMany({})
-        ]);
-        console.log('Đã dọn dẹp dữ liệu cũ...');
+        const models = [User, Category, Recipe, Review, MealPlan];
+        const existingData = await Promise.all(models.map((model) => model.exists({})));
+        if (existingData.some(Boolean)) {
+            throw new Error('Cơ sở dữ liệu đã có dữ liệu. Hãy chọn một cơ sở dữ liệu thử nghiệm trống.');
+        }
 
         // 3. Tạo tài khoản mẫu (Mật khẩu chung: 123456)
         const salt = await bcrypt.genSalt(10);
@@ -87,16 +81,16 @@ const seedData = async () => {
                 cookingTime: 45,
                 servings: 4,
                 difficulty: 'Dễ',
-                ingredients: [
+                ingredient: [
                     { name: 'Thịt ba chỉ', amount: 500, unit: 'gram' },
                     { name: 'Trứng cút', amount: 15, unit: 'quả' },
                     { name: 'Nước dừa tươi', amount: 300, unit: 'ml' },
                     { name: 'Hành tím', amount: 3, unit: 'củ' }
                 ],
                 steps: [
-                    { stepNumber: 1, instruction: 'Thịt ba chỉ rửa sạch, thái miếng vuông vừa ăn. Trứng cút luộc chín, bóc vỏ.' },
-                    { stepNumber: 2, instruction: 'Ướp thịt với nước mắm, đường, tiêu và hành tím băm trong 20 phút.' },
-                    { stepNumber: 3, instruction: 'Thắng nước màu, cho thịt vào đảo săn rồi đổ nước dừa tươi và trứng cút vào kho lửa nhỏ 30 phút.' }
+                    { name: 'Thịt ba chỉ rửa sạch, thái miếng vuông vừa ăn. Trứng cút luộc chín, bóc vỏ.', amount: 0 },
+                    { name: 'Ướp thịt với nước mắm, đường, tiêu và hành tím băm trong 20 phút.', amount: 20 },
+                    { name: 'Thắng nước màu, cho thịt vào đảo săn rồi đổ nước dừa tươi và trứng cút vào kho lửa nhỏ 30 phút.', amount: 30 }
                 ],
                 status: 'approved',
                 averageRating: 5,
@@ -111,16 +105,16 @@ const seedData = async () => {
                 cookingTime: 30,
                 servings: 4,
                 difficulty: 'Trung bình',
-                ingredients: [
+                ingredient: [
                     { name: 'Cá lóc', amount: 600, unit: 'gram' },
                     { name: 'Cà chua', amount: 2, unit: 'quả' },
                     { name: 'Dứa (thơm)', amount: 0.5, unit: 'quả' },
                     { name: 'Giá đỗ', amount: 150, unit: 'gram' }
                 ],
                 steps: [
-                    { stepNumber: 1, instruction: 'Cá lóc làm sạch nhớt, cắt khoanh dày 2cm. Cà chua bổ múi cau, dứa thái lát.' },
-                    { stepNumber: 2, instruction: 'Đun sôi nước cốt me, thả cá vào nấu chín rồi cho cà chua, dứa, giá đỗ vào.' },
-                    { stepNumber: 3, instruction: 'Nêm nếm gia vị vừa ăn, tắt bếp và rắc ngò gai, rau om thái nhỏ.' }
+                    { name: 'Cá lóc làm sạch nhớt, cắt khoanh dày 2cm. Cà chua bổ múi cau, dứa thái lát.', amount: 0 },
+                    { name: 'Đun sôi nước cốt me, thả cá vào nấu chín rồi cho cà chua, dứa, giá đỗ vào.', amount: 0 },
+                    { name: 'Nêm nếm gia vị vừa ăn, tắt bếp và rắc ngò gai, rau om thái nhỏ.', amount: 0 }
                 ],
                 status: 'approved',
                 averageRating: 4,
@@ -135,14 +129,14 @@ const seedData = async () => {
                 cookingTime: 10,
                 servings: 1,
                 difficulty: 'Dễ',
-                ingredients: [
+                ingredient: [
                     { name: 'Trứng gà', amount: 2, unit: 'quả' },
                     { name: 'Pate gan', amount: 50, unit: 'gram' },
                     { name: 'Bánh mì', amount: 1, unit: 'ổ' }
                 ],
                 steps: [
-                    { stepNumber: 1, instruction: 'Làm nóng chảo gang với một chút bơ lạt.' },
-                    { stepNumber: 2, instruction: 'Đập trứng gà và cho pate vào áp chảo đến khi lòng trắng chín giòn.' }
+                    { name: 'Làm nóng chảo gang với một chút bơ lạt.', amount: 0 },
+                    { name: 'Đập trứng gà và cho pate vào áp chảo đến khi lòng trắng chín giòn.', amount: 0 }
                 ],
                 status: 'pending', // Để sẵn 1 món chưa duyệt cho Admin test
                 averageRating: 0,
@@ -173,7 +167,7 @@ const seedData = async () => {
 
         // 7. Tạo thực đơn mẫu cho member1 (ngày hôm nay)
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        today.setUTCHours(0, 0, 0, 0);
 
         await MealPlan.insertMany([
             {

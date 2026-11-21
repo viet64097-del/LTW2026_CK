@@ -1,52 +1,48 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { loginSuccess } from '../../redux/authSlice';
-import { MOCK_USERS } from '../../utils/mockData';
+import axiosClient from '../../api/axiosClient';
+import PasswordInput from '../../components/common/PasswordInput';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('member@recipe.vn');
-  const [password, setPassword] = useState('123456');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { state } = useLocation();
 
-  const handleQuickLogin = (roleKey) => {
-    const selectedUser = MOCK_USERS[roleKey];
-    dispatch(
-      loginSuccess({
-        user: selectedUser,
-        token: `mock_jwt_token_${selectedUser.role}`
-      })
-    );
-    navigate('/', { replace: true });;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setError('');
+    setIsSubmitting(true);
 
-    if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự!');
-      return;
-    }
-
-    if (email.toLowerCase().includes('admin')) {
-      handleQuickLogin('admin');
-    } else {
-      handleQuickLogin('member');
+    try {
+      const session = await axiosClient.post('/auth/login', { email: email.trim(), password }, { skipAuth: true });
+      dispatch(loginSuccess(session));
+      navigate(state?.from || '/', { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Chưa thể đăng nhập. Vui lòng thử lại.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Đăng nhập Sổ Tay Nấu Ăn</h2>
-      {error && <div style={styles.errorBox}>{error}</div>}
+      {error && <div role="alert" style={styles.errorBox}>{error}</div>}
 
       <form onSubmit={handleSubmit} style={styles.form}>
-        <label style={styles.label}>Email</label>
+        <label htmlFor="login-email" style={styles.label}>Email</label>
         <input
+          id="login-email"
+          name="email"
           type="email"
+          autoComplete="username"
           placeholder="Nhập email của bạn"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -54,38 +50,27 @@ export default function LoginPage() {
           style={styles.input}
         />
 
-        <label style={styles.label}>Mật khẩu</label>
-        <input
-          type="password"
+        <PasswordInput
+          id="login-password"
+          name="password"
+          label="Mật khẩu"
+          autoComplete="current-password"
           placeholder="Nhập mật khẩu"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={styles.input}
+          labelStyle={styles.label}
+          inputStyle={styles.input}
         />
 
-        <button type="submit" style={styles.submitBtn}>
-          Đăng nhập
+        <button type="submit" disabled={isSubmitting} style={styles.submitBtn}>
+          {isSubmitting ? 'Đang đăng nhập…' : 'Đăng nhập'}
         </button>
       </form>
 
       <p style={styles.switchText}>
-        Chưa có tài khoản? <Link to="/register" style={{ color: '#ea580c', fontWeight: 600 }}>Đăng ký ngay</Link>
+        Chưa có tài khoản? <Link to="/register" state={state} style={{ color: '#ea580c', fontWeight: 600 }}>Đăng ký ngay</Link>
       </p>
-
-      <div style={styles.quickBox}>
-        <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#6b7280' }}>
-          ⚡ Đăng nhập nhanh để test phân quyền (Mock Auth):
-        </p>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button type="button" onClick={() => handleQuickLogin('member')} style={styles.quickBtn}>
-            👤 Vào quyền Thành viên
-          </button>
-          <button type="button" onClick={() => handleQuickLogin('admin')} style={styles.quickAdminBtn}>
-            🛡 Vào quyền Admin
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
@@ -115,8 +100,5 @@ const styles = {
     fontWeight: 600,
     cursor: 'pointer'
   },
-  switchText: { textAlign: 'center', fontSize: '14px', marginTop: '16px', color: '#4b5563' },
-  quickBox: { marginTop: '20px', paddingTop: '16px', borderTop: '1px dashed #e5e7eb' },
-  quickBtn: { flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #d1d5db', background: '#f9fafb', cursor: 'pointer', fontSize: '13px' },
-  quickAdminBtn: { flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #fca5a5', background: '#fef2f2', color: '#b91c1c', cursor: 'pointer', fontSize: '13px', fontWeight: 600 }
+  switchText: { textAlign: 'center', fontSize: '14px', marginTop: '16px', color: '#4b5563' }
 };

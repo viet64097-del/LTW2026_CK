@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { loginSuccess } from '../../redux/authSlice';
+import axiosClient from '../../api/axiosClient';
+import PasswordInput from '../../components/common/PasswordInput';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -9,48 +11,57 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { state } = useLocation();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
     setError('');
 
-    if (password.length < 6) {
-      setError('Mật khẩu phải từ 6 ký tự trở lên!');
+    if (!name.trim()) {
+      setError('Vui lòng nhập họ và tên.');
+      return;
+    }
+    if (password.length < 8) {
+      setError('Mật khẩu cần ít nhất 8 ký tự.');
       return;
     }
     if (password !== confirmPassword) {
-      setError('Mật khẩu xác nhận không khớp!');
+      setError('Mật khẩu xác nhận không khớp.');
       return;
     }
 
-    const newUser = {
-      _id: `u_${Date.now()}`,
-      name: name.trim(),
-      email: email.trim(),
-      role: 'member',
-      favorites: []
-    };
-
-    dispatch(
-      loginSuccess({
-        user: newUser,
-        token: 'mock_jwt_token_new_member'
-      })
-    );
-    navigate('/', { replace: true });;
+    setIsSubmitting(true);
+    try {
+      const session = await axiosClient.post('/auth/register', {
+        name: name.trim(),
+        email: email.trim(),
+        password
+      }, { skipAuth: true });
+      dispatch(loginSuccess(session));
+      navigate(state?.from || '/', { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Chưa thể tạo tài khoản. Vui lòng thử lại.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div style={styles.container}>
       <h2 style={styles.title}>Đăng ký Thành viên</h2>
-      {error && <div style={styles.errorBox}>{error}</div>}
+      {error && <div role="alert" style={styles.errorBox}>{error}</div>}
 
       <form onSubmit={handleSubmit} style={styles.form}>
-        <label style={styles.label}>Họ và tên</label>
+        <label htmlFor="register-name" style={styles.label}>Họ và tên</label>
         <input
+          id="register-name"
+          name="name"
           type="text"
+          autoComplete="name"
           placeholder="Ví dụ: Nguyễn Tiến Đức"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -58,9 +69,12 @@ export default function RegisterPage() {
           style={styles.input}
         />
 
-        <label style={styles.label}>Email</label>
+        <label htmlFor="register-email" style={styles.label}>Email</label>
         <input
+          id="register-email"
+          name="email"
           type="email"
+          autoComplete="username"
           placeholder="Nhập email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -68,33 +82,39 @@ export default function RegisterPage() {
           style={styles.input}
         />
 
-        <label style={styles.label}>Mật khẩu</label>
-        <input
-          type="password"
-          placeholder="Tối thiểu 6 ký tự"
+        <PasswordInput
+          id="register-password"
+          name="password"
+          label="Mật khẩu"
+          autoComplete="new-password"
+          placeholder="Tối thiểu 8 ký tự"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          style={styles.input}
+          labelStyle={styles.label}
+          inputStyle={styles.input}
         />
 
-        <label style={styles.label}>Xác nhận mật khẩu</label>
-        <input
-          type="password"
+        <PasswordInput
+          id="register-confirm-password"
+          name="confirmPassword"
+          label="Xác nhận mật khẩu"
+          autoComplete="new-password"
           placeholder="Nhập lại mật khẩu"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
-          style={styles.input}
+          labelStyle={styles.label}
+          inputStyle={styles.input}
         />
 
-        <button type="submit" style={styles.submitBtn}>
-          Tạo tài khoản
+        <button type="submit" disabled={isSubmitting} style={styles.submitBtn}>
+          {isSubmitting ? 'Đang tạo tài khoản…' : 'Tạo tài khoản'}
         </button>
       </form>
 
       <p style={styles.switchText}>
-        Đã có tài khoản? <Link to="/login" style={{ color: '#ea580c', fontWeight: 600 }}>Đăng nhập</Link>
+        Đã có tài khoản? <Link to="/login" state={state} style={{ color: '#ea580c', fontWeight: 600 }}>Đăng nhập</Link>
       </p>
     </div>
   );

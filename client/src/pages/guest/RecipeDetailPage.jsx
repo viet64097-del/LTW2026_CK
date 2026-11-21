@@ -250,7 +250,7 @@ export default function RecipeDetailPage() {
           </div>
         </div>
       </div>
-      <ReviewSection recipeId={recipe._id} />
+      <ReviewSection key={recipe._id} recipeId={recipe._id} />
       {showCookingMode && (
         <CookingModeModal
           recipe={recipe}
