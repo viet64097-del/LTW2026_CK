@@ -27,7 +27,7 @@ export default function GroceryListPanel() {
                 <div>
                     <h2 style={styles.title}>🛒 Danh Sách Đi Chợ Tự Động</h2>
                     <p style={styles.subtitle}>
-                        Tự động cộng dồn nguyên liệu trùng tên & đơn vị từ thực đơn tuần bằng <code>reduce()</code>.
+                        Tự động cộng dồn nguyên liệu trùng tên & đơn vị từ thực đơn tuần.
                     </p>
                 </div>
 
