@@ -1,4 +1,3 @@
-// client/src/components/admin/ManageReviewsTab.jsx
 import React, { useState } from 'react';
 
 const MOCK_ADMIN_REVIEWS = [

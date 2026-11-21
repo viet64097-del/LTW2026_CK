@@ -93,7 +93,7 @@ export default function MealPlannerPage() {
         <div>
           <h1 style={styles.title}>📅 Thực Đơn Tuần (7 ngày × 3 bữa)</h1>
           <p style={styles.subtitle}>
-            Đã lên lịch <strong>{totalScheduled} / 21</strong> bữa ăn. Dữ liệu tự động lưu bằng Redux Toolkit.
+            Đã lên lịch <strong>{totalScheduled} / 21</strong> bữa ăn.
           </p>
         </div>
         
