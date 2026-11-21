@@ -2,6 +2,7 @@ const express = require("express");
 const {
   listPendingRecipes,
   updateRecipeStatus,
+  updateReviewVisibility,
   getTopRatedRecipes,
 } = require("../controllers/admin.controller");
 const { requireAuth, requireAdmin } = require("../middleware/auth");
@@ -12,6 +13,7 @@ router.use(requireAuth, requireAdmin);
 
 router.get("/recipes/pending", listPendingRecipes);
 router.patch("/recipes/:id/status", updateRecipeStatus);
+router.patch("/reviews/:id/visibility", updateReviewVisibility);
 router.get("/stats/top-recipes", getTopRatedRecipes);
 
 module.exports = router;

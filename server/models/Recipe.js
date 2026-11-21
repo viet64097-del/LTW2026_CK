@@ -77,6 +77,10 @@ const recipeSchema = new mongoose.Schema(
             type: Number,
             default: 0,
             min: 0,
+        },
+        reviewStatsVersion: {
+            type: Number,
+            select: false,
         }
     },
     {

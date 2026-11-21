@@ -1,5 +1,6 @@
 const Recipe = require("../../models/Recipe");
 const Review = require("../../models/Review");
+const { refreshRecipeRatingStats } = require("../services/recipeRatingStats");
 
 exports.listReviews = async (req, res, next) => {
   try {
@@ -14,7 +15,7 @@ exports.listReviews = async (req, res, next) => {
 
     const reviews = await Review.find({
       recipeId: recipe._id,
-      isHidden: false,
+      isHidden: { $ne: true },
     })
       .populate("userId", "name")
       .sort({ createdAt: -1 });
@@ -52,31 +53,12 @@ exports.createReview = async (req, res, next) => {
       comment: typeof comment === "string" ? comment.trim() : "",
     });
 
-    const [stats] = await Review.aggregate([
-      {
-        $match: {
-          recipeId: recipe._id,
-          isHidden: false,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          averageRating: { $avg: "$rating" },
-          reviewCount: { $sum: 1 },
-        },
-      },
-    ]);
-
-    recipe.averageRating = Math.round(stats.averageRating * 10) / 10;
-    recipe.reviewCount = stats.reviewCount;
-    await recipe.save();
+    const stats = await refreshRecipeRatingStats(recipe._id);
 
     res.status(201).json({
       message: "Đã gửi đánh giá",
       data: review,
-      averageRating: recipe.averageRating,
-      reviewCount: recipe.reviewCount,
+      ...stats,
     });
   } catch (error) {
     if (error.code === 11000) {

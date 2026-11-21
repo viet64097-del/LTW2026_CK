@@ -336,7 +336,7 @@ exports.searchByIngredients = async (req, res, next) => {
         },
       },
       { $match: { matchedIngredientCount: { $gt: 0 } } },
-      { $project: { _ingredientNames: 0 } },
+      { $project: { _ingredientNames: 0, reviewStatsVersion: 0 } },
       {
         $facet: {
           data: [
