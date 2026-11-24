@@ -13,11 +13,11 @@ import MealPlannerPage from './pages/member/MealPlannerPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import NotFoundPage from './pages/guest/NotFoundPage';
 
-const PagePlaceholder = ({ title }) => (
-  <div style={{ maxWidth: '1100px', margin: '28px auto', padding: '20px' }}>
-    <h2>{title}</h2>
-  </div>
-);
+//const PagePlaceholder = ({ title }) => (
+// <div style={{ maxWidth: '1100px', margin: '28px auto', padding: '20px' }}>
+//    <h2>{title}</h2>
+//  </div>
+//);
 
 export default function App() {
   return (
