@@ -52,4 +52,4 @@ npm test -- --watchAll=false --runInBand
 CI=true npm run build
 ```
 
-Đăng nhập và đăng ký sử dụng API. Các màn hình công thức, yêu thích và đánh giá trên giao diện vẫn dùng dữ liệu mẫu. Giao diện thực đơn tuần và quản trị hiện mới có trang khung.
+Đăng nhập, đăng ký và kiểm duyệt bình luận trong tab Admin dùng API thật. Màn hình công thức, yêu thích, đánh giá của thành viên và các tab Admin còn lại dùng dữ liệu mẫu. Thực đơn tuần được lưu trong trình duyệt, hỗ trợ tạo danh sách đi chợ và in hoặc xuất PDF.

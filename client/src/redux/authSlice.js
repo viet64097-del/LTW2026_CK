@@ -2,10 +2,16 @@ import { createSlice } from '@reduxjs/toolkit';
 
 function restoreSession() {
   try {
-    const token = localStorage.getItem('access_token');
-    const user = JSON.parse(localStorage.getItem('current_user'));
+    const saved = localStorage.getItem('auth');
+    const session = saved === null
+      ? {
+          token: localStorage.getItem('access_token'),
+          user: JSON.parse(localStorage.getItem('current_user'))
+        }
+      : JSON.parse(saved);
+    const { user, token } = session ?? {};
 
-    if (user?._id && token && !token.startsWith('mock_jwt_token_')) {
+    if (user?._id && typeof token === 'string' && token && !token.startsWith('mock_jwt_token_')) {
       return { user, token, isAuthenticated: true };
     }
   } catch {
@@ -17,7 +23,7 @@ function restoreSession() {
 
 const authSlice = createSlice({
   name: 'auth',
-  initialState: restoreSession(),
+  initialState: restoreSession,
   reducers: {
     loginSuccess: (state, action) => {
       const { user, token } = action.payload;

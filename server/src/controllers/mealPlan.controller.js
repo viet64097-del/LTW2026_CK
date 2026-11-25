@@ -47,7 +47,7 @@ exports.listMealPlans = async (req, res, next) => {
 
 exports.addMealPlan = async (req, res, next) => {
   try {
-    const { recipeId, date, mealType } = req.body;
+    const { recipeId, date, mealType } = req.body ?? {};
     const parsedDate = parseDateOnly(date);
 
     if (!recipeId || !parsedDate || !mealTypes.includes(mealType)) {

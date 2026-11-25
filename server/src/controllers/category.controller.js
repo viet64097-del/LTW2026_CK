@@ -23,10 +23,14 @@ exports.listCategories = async (req, res, next) => {
 
 exports.createCategory = async (req, res, next) => {
   try {
-    const { name, description, slug } = req.body;
+    const { name, description, slug } = req.body ?? {};
 
-    if (!name?.trim()) {
+    if (typeof name !== "string" || !name.trim()) {
       return res.status(400).json({ message: "Tên danh mục là bắt buộc" });
+    }
+    if ((description != null && typeof description !== "string") ||
+        (slug != null && typeof slug !== "string")) {
+      return res.status(400).json({ message: "Mô tả và slug danh mục phải là chuỗi" });
     }
 
     const category = await Category.create({
@@ -53,7 +57,15 @@ exports.updateCategory = async (req, res, next) => {
       return res.status(404).json({ message: "Không tìm thấy danh mục" });
     }
 
-    const { name, description, slug } = req.body;
+    const { name, description, slug } = req.body ?? {};
+
+    if (name !== undefined && (typeof name !== "string" || !name.trim())) {
+      return res.status(400).json({ message: "Tên danh mục không hợp lệ" });
+    }
+    if ((description !== undefined && typeof description !== "string") ||
+        (slug != null && typeof slug !== "string")) {
+      return res.status(400).json({ message: "Mô tả và slug danh mục phải là chuỗi" });
+    }
 
     if (name !== undefined) {
       category.name = name.trim();

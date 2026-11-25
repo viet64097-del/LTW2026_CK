@@ -4,15 +4,11 @@ export const recipeApi = {
   getAll: (params) => axiosClient.get('/recipes', { params }),
   getById: (id) => axiosClient.get(`/recipes/${id}`),
   searchByIngredients: (ingredients) =>
-    axiosClient.post('/recipes/search-by-ingredients', { ingredients }),
-  create: (formData) =>
-    axiosClient.post('/recipes', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    axiosClient.get('/recipes/search/ingredients', {
+      params: { ingredients: Array.isArray(ingredients) ? ingredients.join(',') : ingredients }
     }),
-  update: (id, formData) =>
-    axiosClient.put(`/recipes/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    }),
+  create: (data) => axiosClient.post('/recipes', data),
+  update: (id, data) => axiosClient.patch(`/recipes/${id}`, data),
   remove: (id) => axiosClient.delete(`/recipes/${id}`),
   addReview: (recipeId, data) => axiosClient.post(`/recipes/${recipeId}/reviews`, data)
 };

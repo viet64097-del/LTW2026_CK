@@ -9,8 +9,18 @@ export const store = configureStore({
   }
 });
 
+let previous = store.getState();
 store.subscribe(() => {
   const state = store.getState();
-  localStorage.setItem('auth', JSON.stringify(state.auth));
-  localStorage.setItem('mealPlan', JSON.stringify(state.mealPlan.plan));
+  try {
+    if (state.auth !== previous.auth) {
+      localStorage.setItem('auth', JSON.stringify(state.auth));
+    }
+    if (state.mealPlan.plan !== previous.mealPlan.plan) {
+      localStorage.setItem('mealPlan', JSON.stringify(state.mealPlan.plan));
+    }
+  } catch {
+    // Keep the current session and plan usable when browser storage is unavailable.
+  }
+  previous = state;
 });

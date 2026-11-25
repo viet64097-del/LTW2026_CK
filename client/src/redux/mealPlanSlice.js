@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSelector, createSlice } from '@reduxjs/toolkit';
 
 export const DAYS = [
   { key: 'mon', label: 'Thứ 2' },
@@ -26,8 +26,17 @@ const createEmptyPlan = () => {
 
 const loadSavedPlan = () => {
   try {
-    const saved = localStorage.getItem('mealPlan');
-    return saved ? JSON.parse(saved) : createEmptyPlan();
+    const saved = JSON.parse(localStorage.getItem('mealPlan'));
+    const plan = createEmptyPlan();
+    for (const { key: day } of DAYS) {
+      for (const { key: mealType } of MEAL_TYPES) {
+        const recipe = saved?.[day]?.[mealType];
+        if (recipe?._id && Array.isArray(recipe.ingredients)) {
+          plan[day][mealType] = recipe;
+        }
+      }
+    }
+    return plan;
   } catch {
     return createEmptyPlan();
   }
@@ -58,9 +67,7 @@ const mealPlanSlice = createSlice({
 });
 
 export const { setMeal, removeMeal, clearMealPlan } = mealPlanSlice.actions;
-export const selectGroceryList = (state) => {
-  const plan = state.mealPlan.plan || {};
-
+export const selectGroceryList = createSelector([(state) => state.mealPlan.plan], (plan) => {
   const allIngredients = [];
   Object.values(plan).forEach((dayMeals) => {
     Object.values(dayMeals).forEach((recipe) => {
@@ -71,8 +78,9 @@ export const selectGroceryList = (state) => {
   });
 
   const grouped = allIngredients.reduce((acc, item) => {
-    const cleanName = (item.name || '').trim().toLowerCase();
-    const cleanUnit = (item.unit || '').trim().toLowerCase();
+    if (typeof item?.name !== 'string' || typeof item.unit !== 'string') return acc;
+    const cleanName = item.name.trim().toLowerCase();
+    const cleanUnit = item.unit.trim().toLowerCase();
     const key = `${cleanName}__${cleanUnit}`;
 
     if (!acc[key]) {
@@ -89,5 +97,5 @@ export const selectGroceryList = (state) => {
   }, {});
 
   return Object.values(grouped).sort((a, b) => a.name.localeCompare(b.name, 'vi'));
-};
+});
 export default mealPlanSlice.reducer;

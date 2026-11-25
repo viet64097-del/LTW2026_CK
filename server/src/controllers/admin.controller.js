@@ -17,7 +17,7 @@ exports.listPendingRecipes = async (req, res, next) => {
 
 exports.updateRecipeStatus = async (req, res, next) => {
   try {
-    const { status } = req.body;
+    const { status } = req.body ?? {};
 
     if (!["approved", "hidden"].includes(status)) {
       return res.status(400).json({
@@ -36,6 +36,19 @@ exports.updateRecipeStatus = async (req, res, next) => {
     }
 
     res.json({ message: "Đã cập nhật trạng thái", data: recipe });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.listReviews = async (req, res, next) => {
+  try {
+    const reviews = await Review.find()
+      .populate("recipeId", "title")
+      .populate("userId", "name")
+      .sort({ createdAt: -1, _id: -1 });
+
+    return res.json({ data: reviews });
   } catch (error) {
     next(error);
   }

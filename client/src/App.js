@@ -13,12 +13,6 @@ import MealPlannerPage from './pages/member/MealPlannerPage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import NotFoundPage from './pages/guest/NotFoundPage';
 
-const PagePlaceholder = ({ title }) => (
-  <div style={{ maxWidth: '1100px', margin: '28px auto', padding: '20px' }}>
-    <h2>{title}</h2>
-  </div>
-);
-
 export default function App() {
   return (
     <BrowserRouter>
@@ -40,15 +34,6 @@ export default function App() {
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
           <Route path="/admin/approve" element={<AdminDashboardPage />} />
         </Route>
-        <Route
-          path="*"
-          element={
-            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-              <h2>404 - Không tìm thấy trang</h2>
-              <p>Đường dẫn bạn truy cập không tồn tại.</p>
-            </div>
-          }
-        />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

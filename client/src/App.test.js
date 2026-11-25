@@ -22,11 +22,37 @@ function renderPage(path) {
 
 beforeEach(() => {
   axiosClient.post.mockReset();
+  localStorage.clear();
 });
 
 test('shows the recipe home page', () => {
   renderPage('/');
   expect(screen.getByRole('heading', { name: /khám phá công thức nấu ăn mỗi ngày/i })).toBeVisible();
+});
+
+test('shows the 404 page with a link back home', () => {
+  renderPage('/trang-khong-ton-tai');
+  expect(screen.getByRole('heading', { name: '404' })).toBeVisible();
+  expect(screen.getByRole('link', { name: /quay về trang chủ/i })).toHaveAttribute('href', '/');
+});
+
+test('restores a saved session when reopening a protected page', () => {
+  const user = { ...session.user, _id: session.user.id };
+  localStorage.setItem('auth', JSON.stringify({ user, token: session.token }));
+
+  const store = renderPage('/my-recipes');
+  expect(screen.getByRole('heading', { name: /sổ tay cá nhân/i })).toBeVisible();
+  expect(store.getState().auth).toMatchObject({ user, isAuthenticated: true });
+});
+
+test('restores old sessions only when the current storage key is absent', () => {
+  const user = { ...session.user, _id: session.user.id };
+  localStorage.setItem('current_user', JSON.stringify(user));
+  localStorage.setItem('access_token', session.token);
+  expect(authReducer(undefined, { type: 'init' }).isAuthenticated).toBe(true);
+
+  localStorage.setItem('auth', JSON.stringify({ user: null, token: null }));
+  expect(authReducer(undefined, { type: 'init' }).isAuthenticated).toBe(false);
 });
 
 test('toggles the login password with the keyboard and keeps the typed value', () => {

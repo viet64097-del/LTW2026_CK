@@ -1,5 +1,6 @@
 const Recipe = require("../../models/Recipe");
 const Review = require("../../models/Review");
+const Category = require("../../models/Category");
 
 exports.listRecipes = async (req, res, next) => {
   try {
@@ -11,8 +12,12 @@ exports.listRecipes = async (req, res, next) => {
 
     const filter = { status: "approved" };
 
-    if (req.query.search?.trim()) {
-      const safeSearch = req.query.search.trim().replace(
+    const { search } = req.query;
+    if (search !== undefined && typeof search !== "string") {
+      return res.status(400).json({ message: "Từ khóa tìm kiếm phải là một chuỗi" });
+    }
+    if (search?.trim()) {
+      const safeSearch = search.trim().replace(
         /[.*+?^${}()|[\]\\]/g,
         "\\$&"
       );
@@ -90,12 +95,14 @@ exports.createRecipe = async (req,res,next) => {
       difficulty,
       ingredient,
       steps,
-    } = req.body;
+    } = req.body ?? {};
 
     if (
       !categoryId ||
-      !title?.trim() ||
-      !description?.trim() ||
+      typeof title !== "string" ||
+      !title.trim() ||
+      typeof description !== "string" ||
+      !description.trim() ||
       !imageUrl ||
       !cookingTime ||
       !servings ||
@@ -113,6 +120,10 @@ exports.createRecipe = async (req,res,next) => {
 
     if (difficulty && !allowedDifficulties.includes(difficulty)) {
       return res.status(400).json({message : "Độ khó không hợp lệ"});
+    }
+
+    if (!(await Category.exists({ _id: categoryId }))) {
+      return res.status(400).json({ message: "Danh mục không tồn tại" });
     }
 
     const recipe = await Recipe.create({
@@ -149,6 +160,15 @@ exports.updateRecipe = async (req,res,next) => {
       return res.status(403).json({message: "Bạn không sở hữu công thức này"});
     }
 
+    const changes = req.body;
+    if (!changes || Array.isArray(changes)) {
+      return res.status(400).json({ message: "Vui lòng gửi thông tin cần cập nhật" });
+    }
+    if (changes.categoryId !== undefined &&
+        !(await Category.exists({ _id: changes.categoryId }))) {
+      return res.status(400).json({ message: "Danh mục không tồn tại" });
+    }
+
     const allowedFields = [
       "categoryId",
       "title",
@@ -162,8 +182,8 @@ exports.updateRecipe = async (req,res,next) => {
     ];
 
     for (const field of allowedFields) {
-      if (req.body[field] !== undefined) {
-        recipe[field] = req.body[field];
+      if (changes[field] !== undefined) {
+        recipe[field] = changes[field];
       }
     }
 
@@ -293,7 +313,7 @@ exports.searchByIngredients = async (req, res, next) => {
       ...new Set(
         rawIngredients
           .flatMap((value) => value.split(","))
-          .map((name) => name.trim().toLowerCase())
+          .map((name) => name.trim().toLowerCase().normalize("NFC"))
           .filter(Boolean)
       ),
     ];
@@ -311,22 +331,15 @@ exports.searchByIngredients = async (req, res, next) => {
     );
 
     const [result] = await Recipe.aggregate([
-      { $match: { status: "approved" } },
-      {
-        $addFields: {
-          _ingredientNames: {
-            $map: {
-              input: "$ingredient",
-              as: "item",
-              in: { $toLower: "$$item.name" },
-            },
-          },
-        },
-      },
+      { $match: { status: "approved", "ingredient.name": { $in: ingredientNames } } },
       {
         $addFields: {
           matchedIngredientNames: {
-            $setIntersection: ["$_ingredientNames", ingredientNames],
+            $filter: {
+              input: { $literal: ingredientNames },
+              as: "name",
+              cond: { $in: ["$$name", "$ingredient.name"] },
+            },
           },
         },
       },
@@ -335,8 +348,7 @@ exports.searchByIngredients = async (req, res, next) => {
           matchedIngredientCount: { $size: "$matchedIngredientNames" },
         },
       },
-      { $match: { matchedIngredientCount: { $gt: 0 } } },
-      { $project: { _ingredientNames: 0, reviewStatsVersion: 0 } },
+      { $project: { reviewStatsVersion: 0 } },
       {
         $facet: {
           data: [
@@ -353,7 +365,7 @@ exports.searchByIngredients = async (req, res, next) => {
           metadata: [{ $count: "total" }],
         },
       },
-    ]);
+    ]).collation({ locale: "vi", strength: 2 });
 
     const recipes = result?.data || [];
     const total = result?.metadata[0]?.total || 0;

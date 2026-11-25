@@ -57,8 +57,14 @@ export default function MealPlannerPage() {
           Ngày xuất: {new Date().toLocaleDateString('vi-VN')} • Tổng số bữa: {totalScheduled} / 21
         </p>
       </div>
-      <div style={styles.headerRow}>
-        <div className="no-print" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+      <div className="no-print" style={styles.headerRow}>
+        <div>
+          <h1 style={styles.title}>📅 Thực Đơn Tuần (7 ngày × 3 bữa)</h1>
+          <p style={styles.subtitle}>
+            Đã lên lịch <strong>{totalScheduled} / 21</strong> bữa ăn.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={handleExportPDF}
@@ -90,25 +96,6 @@ export default function MealPlannerPage() {
             🗑 Xóa toàn bộ tuần
           </button>
         </div>
-        <div>
-          <h1 style={styles.title}>📅 Thực Đơn Tuần (7 ngày × 3 bữa)</h1>
-          <p style={styles.subtitle}>
-            Đã lên lịch <strong>{totalScheduled} / 21</strong> bữa ăn.
-          </p>
-        </div>
-        
-
-        <button
-          type="button"
-          onClick={handleClearAll}
-          disabled={totalScheduled === 0}
-          style={{
-            ...styles.clearBtn,
-            opacity: totalScheduled === 0 ? 0.5 : 1
-          }}
-        >
-          🗑 Xóa toàn bộ tuần
-        </button>
       </div>
 
       <div style={styles.tableWrapper}>
@@ -151,6 +138,7 @@ export default function MealPlannerPage() {
                           </div>
                           <button
                             type="button"
+                            className="no-print"
                             onClick={() =>
                               dispatch(removeMeal({ day: day.key, mealType: meal.key }))
                             }
@@ -163,6 +151,7 @@ export default function MealPlannerPage() {
                       ) : (
                         <button
                           type="button"
+                          className="no-print"
                           onClick={() =>
                             setActiveSlot({
                               day: day.key,

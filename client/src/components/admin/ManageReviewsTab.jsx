@@ -1,54 +1,42 @@
-import React, { useState } from 'react';
-
-const MOCK_ADMIN_REVIEWS = [
-  {
-    _id: 'rev_1',
-    recipeTitle: 'Phở Bò Hà Nội Truyền Thống',
-    userName: 'Minh Anh',
-    rating: 5,
-    comment: 'Nước dùng ngọt thanh, làm theo công thức này cả nhà khen ngon!',
-    createdAt: '16/11/2026',
-    isHidden: false
-  },
-  {
-    _id: 'rev_2',
-    recipeTitle: 'Bún Chả Hà Nội',
-    userName: '8xBet',
-    rating: 1,
-    comment: 'Bấm vào link quảng cáo nhận thưởng miễn phí tại đây...',
-    createdAt: '18/11/2026',
-    isHidden: false
-  },
-  {
-    _id: 'rev_3',
-    recipeTitle: 'Cơm Chiên Dương Châu',
-    userName: 'Ly',
-    rating: 4,
-    comment: 'Dễ làm, hạt cơm tơi. Mình thêm chút lạp xưởng ăn rất hợp.',
-    createdAt: '19/11/2026',
-    isHidden: false
-  },
-  {
-    _id: 'rev_4',
-    recipeTitle: 'Gà Rang Gừng',
-    userName: 'User_999',
-    rating: 1,
-    comment: 'tệ',
-    createdAt: '20/11/2026',
-    isHidden: true
-  }
-];
+import React, { useEffect, useState } from 'react';
+import { adminApi } from '../../api/adminApi';
 
 export default function ManageReviewsTab() {
-  const [reviews, setReviews] = useState(MOCK_ADMIN_REVIEWS);
-  const [filter, setFilter] = useState('all'); // 'all' | 'visible' | 'hidden'
+  const [reviews, setReviews] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [updateError, setUpdateError] = useState('');
+  const [savingId, setSavingId] = useState(null);
 
-  const handleToggleHide = (id) => {
-    setReviews((prev) =>
-      prev.map((rev) =>
-        rev._id === id ? { ...rev, isHidden: !rev.isHidden } : rev
-      )
-    );
+  useEffect(() => {
+    const controller = new AbortController();
+    adminApi.getReviews(controller.signal)
+      .then(({ data }) => setReviews(data))
+      .catch((error) => {
+        if (!controller.signal.aborted) {
+          setLoadError(error.response?.data?.message || 'Không tải được danh sách bình luận.');
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, []);
+
+  const handleToggleHide = async (review) => {
+    setSavingId(review._id);
+    setUpdateError('');
+    try {
+      const { data } = await adminApi.setReviewVisibility(review._id, !review.isHidden);
+      setReviews((previous) => previous.map((item) => (
+        item._id === data._id ? { ...item, isHidden: data.isHidden } : item
+      )));
+    } catch (error) {
+      setUpdateError(error.response?.data?.message || 'Không cập nhật được trạng thái bình luận.');
+    } finally {
+      setSavingId(null);
+    }
   };
 
   const filteredReviews = reviews.filter((rev) => {
@@ -59,8 +47,12 @@ export default function ManageReviewsTab() {
 
   const hiddenCount = reviews.filter((r) => r.isHidden).length;
 
+  if (loading) return <p role="status">Đang tải bình luận…</p>;
+  if (loadError) return <p role="alert">{loadError}</p>;
+
   return (
     <div>
+      {updateError && <p role="alert">{updateError}</p>}
       <div style={styles.filterRow}>
         <button
           type="button"
@@ -112,13 +104,13 @@ export default function ManageReviewsTab() {
             >
               <div style={{ flex: 1 }}>
                 <div style={styles.topRow}>
-                  <strong style={{ color: '#111827' }}>{rev.userName}</strong>
+                  <strong style={{ color: '#111827' }}>{rev.userId?.name ?? 'Tài khoản đã xóa'}</strong>
                   <span style={{ color: '#f59e0b', fontSize: '14px' }}>
                     {'★'.repeat(rev.rating)}
                     {'☆'.repeat(5 - rev.rating)}
                   </span>
-                  <span style={styles.recipeTag}>🍲 {rev.recipeTitle}</span>
-                  <span style={styles.dateText}>{rev.createdAt}</span>
+                  <span style={styles.recipeTag}>🍲 {rev.recipeId?.title ?? 'Công thức đã xóa'}</span>
+                  <span style={styles.dateText}>{new Date(rev.createdAt).toLocaleDateString('vi-VN')}</span>
                 </div>
 
                 <p
@@ -132,17 +124,18 @@ export default function ManageReviewsTab() {
 
                 {rev.isHidden && (
                   <span style={styles.hiddenBadge}>
-                    🚫 Đã ẩn khỏi trang công thức do vi phạm
+                    🚫 Đã ẩn bình luận
                   </span>
                 )}
               </div>
 
               <button
                 type="button"
-                onClick={() => handleToggleHide(rev._id)}
+                onClick={() => handleToggleHide(rev)}
+                disabled={savingId !== null}
                 style={rev.isHidden ? styles.showBtn : styles.hideBtn}
               >
-                {rev.isHidden ? '👁️ Hiện lại' : '🚫 Ẩn bình luận'}
+                {savingId === rev._id ? 'Đang lưu…' : rev.isHidden ? '👁️ Hiện lại' : '🚫 Ẩn bình luận'}
               </button>
             </div>
           ))}

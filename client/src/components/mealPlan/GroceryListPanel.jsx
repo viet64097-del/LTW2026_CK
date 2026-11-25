@@ -37,10 +37,8 @@ export default function GroceryListPanel() {
                             Đã mua: {boughtCount} / {groceryList.length}
                         </span>
                         {boughtCount > 0 && (
-                            <button type="button" onClick={resetChecked} style={styles.resetBtn}>
-                                <button type="button" className="no-print" onClick={resetChecked} style={styles.resetBtn}>
-                                    Bỏ tích tất cả
-                                </button>
+                            <button type="button" className="no-print" onClick={resetChecked} style={styles.resetBtn}>
+                                Bỏ tích tất cả
                             </button>
                         )}
                     </div>

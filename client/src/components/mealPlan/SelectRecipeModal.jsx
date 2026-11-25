@@ -12,7 +12,7 @@ export default function SelectRecipeModal({ dayLabel, mealLabel, onSelect, onClo
   );
 
   return (
-    <div style={styles.overlay} onClick={onClose}>
+    <div className="no-print" style={styles.overlay} onClick={onClose}>
       <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div style={styles.header}>
           <div>

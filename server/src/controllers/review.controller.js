@@ -28,8 +28,10 @@ exports.listReviews = async (req, res, next) => {
 
 exports.createReview = async (req, res, next) => {
   try {
-    const { rating, comment } = req.body;
-    const numericRating = Number(rating);
+    const { rating, comment } = req.body ?? {};
+    const numericRating = typeof rating === "number" || typeof rating === "string"
+      ? Number(rating)
+      : NaN;
 
     if (!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5) {
       return res.status(400).json({
